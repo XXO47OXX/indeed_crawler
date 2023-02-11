@@ -54,8 +54,9 @@ class IndeedScraperAPI1Spider(scrapy.Spider):
         page_counter = 1
         for i in range(0, for_loop_end_range + page_index_step, page_index_step):
             logging.info(f"Crawling page number {page_counter} with index {i}")
+            listing_page_url_to_crawl = prefix + IndeedScraperAPI1Spider.base_url + f"&start={i}" + suffix
             yield scrapy.Request(
-                url=prefix + IndeedScraperAPI1Spider.base_url + f"&start={i}" + suffix,
+                url=listing_page_url_to_crawl,
                 callback=self.parse_listing_page,
                 meta={"crawled_page_rank": page_counter}
             )
@@ -65,23 +66,18 @@ class IndeedScraperAPI1Spider(scrapy.Spider):
         # Number of Listings
         listings = response.xpath("//ul[@class='jobsearch-ResultsList css-0']/li")
         for li in listings:
+            # job_indeed_name and job_indeed_url
             job_title_name = li.xpath(".//h2[contains(@class, 'jobTitle')]/a/span/text()").get()
+            job_indeed_url = "https://ca.indeed.com" + li.xpath(".//h2[contains(@class, 'jobTitle')]/a/span/../@href").get()
             if job_title_name is None: # Sometimes, the the HTML content under "li" is NULL. If this is the case, don't add anything to the "output_dict_listing_page"
                 continue
             else:
                 # Clean the crawled fields
                 # company_indeed_url
                 try:
-                    company_indeed_url = "ca.indeed.com" + li.xpath(".//span[@class='companyName']/a/@href").get()
+                    company_indeed_url = "https://ca.indeed.com" + li.xpath(".//span[@class='companyName']/a/@href").get()
                 except TypeError: # If the XPATH yields a NULL value, it cannot be concatenated to a string
                     company_indeed_url = None
-                
-                # job_indeed_url
-                try:
-                    # job_indeed_url = "ca.indeed.com" + li.xpath(".//h2[@class='jobTitle css-1h4a4n5 eu4oa1w0']/a/@href").get()
-                    job_indeed_url = "ca.indeed.com" + li.xpath(".//h2[contains(@class, 'jobTitle')]/a/span/../@href").get()
-                except TypeError:
-                    job_indeed_url = None
                 
                 # company_name
                 company_name_with_url = li.xpath(".//span[@class='companyName']/a/text()").get()
@@ -106,4 +102,26 @@ class IndeedScraperAPI1Spider(scrapy.Spider):
                     "crawled_page_rank": response.meta["crawled_page_rank"]
                 }
 
-                yield output_dict_listing_page
+                logging.info("Proceeding to crawl data from the job page itself...")
+                yield scrapy.Request(
+                    url=job_indeed_url,
+                    callback=self.parse_job_page,
+                    meta=output_dict_listing_page
+                )
+        
+    def parse_job_page(self, response):
+        yield {
+            # Job page fields
+            "job_page_url_to_crawl": response.meta["job_indeed_url"],
+            "salary": response.xpath("//div[text()='Salary']//following-sibling::div/span/text()").get(),
+            "job_type": response.xpath("//div[text()='Job type']//following-sibling::div[1]/text()").get(),
+            "remote": response.xpath("//div[text()='Job type']//following-sibling::div[2]/text()").get(),
+            "job_description": response.xpath("//div[@id='jobDescriptionText']/text()").get(),
+            # Listing page fields
+            "listing_page_url_to_crawl": response.meta["listing_page_url_to_crawl"],
+            "job_title_name": response.meta["job_title_name"],
+            "company_name": response.meta["company_name"],
+            "company_indeed_url": response.meta["company_indeed_url"],
+            "city": response.meta["city"],
+            "crawled_page_rank": response.meta["crawled_page_rank"],
+        }
