@@ -79,7 +79,7 @@ class IndeedScraperAPI1Spider(scrapy.Spider):
 
                 # job_indeed_url
                 try:
-                    job_indeed_url = "ca.indeed.com" + li.xpath(".//h2[contains(@class, 'jobTitle')]/a/span/../@href").get()
+                    job_indeed_url = "https://ca.indeed.com" + li.xpath(".//h2[contains(@class, 'jobTitle')]/a/span/../@href").get()
                 except TypeError:
                     job_indeed_url = None
                 
