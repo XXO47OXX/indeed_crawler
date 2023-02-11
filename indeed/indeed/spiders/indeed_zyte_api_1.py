@@ -63,9 +63,7 @@ class IndeedZyteAPI1Spider(scrapy.Spider):
         # Number of Listings
         listings = response.xpath("//ul[@class='jobsearch-ResultsList css-0']/li")
         for li in listings:
-            # job_indeed_name and job_indeed_url
             job_title_name = li.xpath(".//h2[contains(@class, 'jobTitle')]/a/span/text()").get()
-            job_indeed_url = "https://ca.indeed.com" + li.xpath("..//h2[contains(@class, 'jobTitle')]/a/span/../@href").get()
             if job_title_name is None: # Sometimes, the the HTML content under "li" is NULL. If this is the case, don't add anything to the "output_dict"
                 continue
             else:
@@ -75,6 +73,12 @@ class IndeedZyteAPI1Spider(scrapy.Spider):
                     company_indeed_url = "https://ca.indeed.com" + li.xpath(".//span[@class='companyName']/a/@href").get()
                 except TypeError: # If the XPATH yields a NULL value, it cannot be concatenated to a string
                     company_indeed_url = None
+
+                # job_indeed_url
+                try:
+                    job_indeed_url = "https://ca.indeed.com" + li.xpath(".//h2[contains(@class, 'jobTitle')]/a/span/../@href").get()
+                except TypeError:
+                    job_indeed_url = None
                 
                 # company_name
                 company_name_with_url = li.xpath(".//span[@class='companyName']/a/text()").get()
