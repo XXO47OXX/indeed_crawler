@@ -1,0 +1,4 @@
+.env
+*.gdoc
+*.ipynb
+test.py
