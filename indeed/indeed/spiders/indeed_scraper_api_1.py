@@ -7,17 +7,9 @@ from inputs import (
     page_index_step,
     max_page_index
 )
-from w3lib.html import remove_tags
 import re
 from math import ceil
 import logging
-logging.basicConfig(
-    level=logging.DEBUG,
-    format='%(asctime)s  - %(levelname)s - %(message)s',
-    datefmt='%Y-%m-%d %H:%M:%S',
-    encoding="utf-8",
-    filename="scraper_api_logs.log"
-)
 
 
 class IndeedScraperAPI1Spider(scrapy.Spider):
@@ -92,17 +84,28 @@ class IndeedScraperAPI1Spider(scrapy.Spider):
                 city = li.xpath(".//div[@class='companyLocation']/text()").get()
                 unwanted_words = ["Temporarily Remote in ", "Remote in ", "Hybrid remote in "]
                 if bool([wo for wo in unwanted_words if(wo in city)]): # If TRUE (i.e., if an unwanted sub-string exists in city, remove it from the main string, which is city) 
+                    # Set the remote variable to the value of the unwanted word
+                    remote = re.findall(pattern=".*(?=\sin\s)", string=city)[0]
+
+                    # Remove the unwanted word from city
                     for wo in unwanted_words:
                         city = re.sub(wo, "", city)
+                else:
+                    remote = None
+                
+                # Salary
+                salary = response.xpath("//div[@class='metadata salary-snippet-container']/div/text()").get()
                 
                 # Yield the data
                 output_dict_listing_page = {
-                    "url_to_crawl": remove_tags(response.headers["Sa-Final-Url"]),
+                    "listing_page_url_to_crawl": response.meta["listing_page_url_to_crawl"],
                     "job_title_name": job_title_name,
                     "job_indeed_url": job_indeed_url,
                     "company_name": company_name,
                     "company_indeed_url": company_indeed_url,
                     "city": city,
+                    "remote": remote,
+                    "salary": salary,
                     "crawled_page_rank": response.meta["crawled_page_rank"]
                 }
 
@@ -114,18 +117,32 @@ class IndeedScraperAPI1Spider(scrapy.Spider):
                 )
         
     def parse_job_page(self, response):
+        job_type = response.xpath("//div[text()='Job type']//following-sibling::div/text()").getall()
+        if job_type is not None:
+            # Remove unwanted keywords from the job_type list
+            wanted_job_types = ["Full-time", "Permanent", "Contract", "Part-time", "Temporary", "Apprenticeship", "Internship", "Internship / Co-op", "Casual", "Freelance", "Fixed term contract"]
+            job_type = [job for job in job_type if(job in wanted_job_types)] # If TRUE (i.e., if an unwanted sub-string exists in city, remove it from the main string, which is city) 
+
+            # Join the elements of the list to form a string and separate them with a comma
+            job_type = ', '.join(job_type)
+
+        # Job description
+        job_description = response.xpath("//div[@id='jobDescriptionText']//text()").getall()
+        if job_description is not None:
+            job_description = [job.strip() for job in job_description]
+            job_description = '\n'.join(job_description)
+
         yield {
             # Job page fields
-            "job_page_url_to_crawl": response.meta["job_indeed_url"],
-            "salary": response.xpath("//div[text()='Salary']//following-sibling::div/span/text()").get(),
-            "job_type": response.xpath("//div[text()='Job type']//following-sibling::div[1]/text()").get(),
-            "remote": response.xpath("//div[text()='Job type']//following-sibling::div[2]/text()").get(),
-            "job_description": response.xpath("//div[@id='jobDescriptionText']/text()").get(),
-            # Listing page fields
-            "listing_page_url_to_crawl": response.meta["listing_page_url_to_crawl"],
             "job_title_name": response.meta["job_title_name"],
+            "job_type": job_type,
             "company_name": response.meta["company_name"],
             "company_indeed_url": response.meta["company_indeed_url"],
             "city": response.meta["city"],
+            "remote": response.meta["remote"],
+            "salary": response.meta["salary"],
             "crawled_page_rank": response.meta["crawled_page_rank"],
+            "job_page_url_to_crawl": response.meta["job_indeed_url"],
+            "job_description": job_description,
+            "listing_page_url_to_crawl": response.meta["listing_page_url_to_crawl"],
         }
