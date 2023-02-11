@@ -140,7 +140,7 @@ class IndeedZyteAPI1Spider(scrapy.Spider):
             "remote": response.meta["remote"],
             "salary": response.meta["salary"],
             "crawled_page_rank": response.meta["crawled_page_rank"],
-            "job_description": job_description,
             "job_page_url_to_crawl": response.meta["job_indeed_url"],
+            "job_description": job_description,
             "listing_page_url_to_crawl": response.meta["listing_page_url_to_crawl"],
         }
