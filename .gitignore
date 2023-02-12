@@ -2,3 +2,4 @@
 *.gdoc
 *.ipynb
 test.py
+*.xlsx
