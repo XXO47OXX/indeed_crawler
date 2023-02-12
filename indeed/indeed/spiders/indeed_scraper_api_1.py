@@ -10,6 +10,7 @@ from inputs import (
 import re
 from math import ceil
 import logging
+from datetime import datetime
 
 
 class IndeedScraperAPI1Spider(scrapy.Spider):
@@ -94,7 +95,7 @@ class IndeedScraperAPI1Spider(scrapy.Spider):
                     remote = None
                 
                 # Salary
-                salary = response.xpath("//div[@class='metadata salary-snippet-container']/div/text()").get()
+                salary = li.xpath(".//div[@class='metadata salary-snippet-container']/div/text()").get()
                 
                 # Yield the data
                 output_dict_listing_page = {
@@ -130,7 +131,7 @@ class IndeedScraperAPI1Spider(scrapy.Spider):
         job_description = response.xpath("//div[@id='jobDescriptionText']//text()").getall()
         if job_description is not None:
             job_description = [job.strip() for job in job_description]
-            job_description = '\n'.join(job_description)
+            job_description = ''.join(job_description)
 
         yield {
             # Job page fields
@@ -143,6 +144,7 @@ class IndeedScraperAPI1Spider(scrapy.Spider):
             "salary": response.meta["salary"],
             "crawled_page_rank": response.meta["crawled_page_rank"],
             "job_page_url_to_crawl": response.meta["job_indeed_url"],
-            "job_description": job_description,
             "listing_page_url_to_crawl": response.meta["listing_page_url_to_crawl"],
+            "job_description": job_description,
+            "crawled_timestamp": datetime.now()
         }
