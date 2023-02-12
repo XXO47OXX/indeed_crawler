@@ -2,8 +2,9 @@ functions.py
 inputs.py
 main_scraper_1.py
 setup.py
-indeed/.env
 indeed/__init__.py
+indeed/bq_credentials.json
+indeed/email_authentication.json
 indeed/functions.py
 indeed/inputs.py
 indeed/items.py
@@ -11,10 +12,10 @@ indeed/middlewares.py
 indeed/pipelines.py
 indeed/settings.py
 indeed/spiders/__init__.py
-indeed/spiders/indeed_scraper_api_1.py
 indeed/spiders/indeed_zyte_api_1.py
 project.egg-info/PKG-INFO
 project.egg-info/SOURCES.txt
 project.egg-info/dependency_links.txt
 project.egg-info/entry_points.txt
+project.egg-info/not-zip-safe
 project.egg-info/top_level.txt
