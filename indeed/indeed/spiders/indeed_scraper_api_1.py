@@ -15,8 +15,7 @@ from datetime import datetime
 
 class IndeedScraperAPI1Spider(scrapy.Spider):
     name = 'indeed_scraper_api_1'
-    # base_url = "https://ca.indeed.com/jobs?l=Greater+Toronto+Area%2C+ON&sc=0kf%3Aocc%286YCJB%29%3B&radius=35&sort=date&vjk=f55ce01235a88065"
-    base_url = "https://ca.indeed.com/jobs?l=Greater+Toronto+Area%2C+ON&sc=0kf%3Ajt%28apprenticeship%29occ%286YCJB%29%3B&radius=35&sort=date&vjk=a976e74a57a75f5d"
+    base_url = "https://ca.indeed.com/jobs?l=Greater+Toronto+Area%2C+ON&sc=0kf%3Aocc%286YCJB%29%3B&radius=35&sort=date&vjk=f55ce01235a88065"
     custom_settings=custom_settings_dict
     
     def start_requests(self):
