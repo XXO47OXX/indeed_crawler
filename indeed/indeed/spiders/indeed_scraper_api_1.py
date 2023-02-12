@@ -47,9 +47,9 @@ class IndeedScraperAPI1Spider(scrapy.Spider):
         page_counter = 1
         for i in range(0, for_loop_end_range + page_index_step, page_index_step):
             logging.info(f"Crawling page number {page_counter} with index {i}")
-            listing_page_url_to_crawl = prefix + IndeedScraperAPI1Spider.base_url + f"&start={i}" + suffix
+            listing_page_url = prefix + IndeedScraperAPI1Spider.base_url + f"&start={i}" + suffix
             yield scrapy.Request(
-                url=listing_page_url_to_crawl,
+                url=listing_page_url,
                 callback=self.parse_listing_page,
                 meta={"crawled_page_rank": page_counter}
             )
@@ -99,7 +99,7 @@ class IndeedScraperAPI1Spider(scrapy.Spider):
                 
                 # Yield the data
                 output_dict_listing_page = {
-                    "listing_page_url_to_crawl": response.meta["listing_page_url_to_crawl"],
+                    "listing_page_url": response.meta["listing_page_url"],
                     "job_title_name": job_title_name,
                     "job_indeed_url": job_indeed_url,
                     "company_name": company_name,
@@ -143,8 +143,8 @@ class IndeedScraperAPI1Spider(scrapy.Spider):
             "remote": response.meta["remote"],
             "salary": response.meta["salary"],
             "crawled_page_rank": response.meta["crawled_page_rank"],
-            "job_page_url_to_crawl": response.meta["job_indeed_url"],
-            "listing_page_url_to_crawl": response.meta["listing_page_url_to_crawl"],
+            "job_page_url": response.meta["job_indeed_url"],
+            "listing_page_url": response.meta["listing_page_url"],
             "job_description": job_description,
             "crawled_timestamp": datetime.now()
         }

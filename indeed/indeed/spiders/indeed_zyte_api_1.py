@@ -13,8 +13,8 @@ from datetime import datetime
 
 class IndeedZyteAPI1Spider(scrapy.Spider):
     name = 'indeed_zyte_api_1'
-    # base_url = "https://ca.indeed.com/jobs?l=Greater+Toronto+Area%2C+ON&sc=0kf%3Aocc%286YCJB%29%3B&radius=35&sort=date&vjk=f55ce01235a88065"
-    base_url = "https://ca.indeed.com/jobs?l=Greater+Toronto+Area%2C+ON&sc=0kf%3Ajt%28apprenticeship%29occ%286YCJB%29%3B&radius=35&sort=date&vjk=a976e74a57a75f5d"
+    base_url = "https://ca.indeed.com/jobs?l=Greater+Toronto+Area%2C+ON&sc=0kf%3Aocc%286YCJB%29%3B&radius=35&sort=date&vjk=f55ce01235a88065"
+    # base_url = "https://ca.indeed.com/jobs?l=Greater+Toronto+Area%2C+ON&sc=0kf%3Ajt%28apprenticeship%29occ%286YCJB%29%3B&radius=35&sort=date&vjk=a976e74a57a75f5d"
     custom_settings=custom_settings_zyte_api_dict
     
     def start_requests(self):
@@ -45,11 +45,11 @@ class IndeedZyteAPI1Spider(scrapy.Spider):
         page_counter = 1
         for i in range(0, for_loop_end_range + page_index_step, page_index_step):
             logging.info(f"Crawling page number {page_counter} with index {i}")
-            listing_page_url_to_crawl = IndeedZyteAPI1Spider.base_url + f"&start={i}"
+            listing_page_url = IndeedZyteAPI1Spider.base_url + f"&start={i}"
             yield scrapy.Request(
-                url=listing_page_url_to_crawl,
+                url=listing_page_url,
                 callback=self.parse_listing_page,
-                meta={"crawled_page_rank": page_counter, "listing_page_url_to_crawl": listing_page_url_to_crawl}
+                meta={"crawled_page_rank": page_counter, "listing_page_url": listing_page_url}
             )
             page_counter += 1
 
@@ -97,7 +97,7 @@ class IndeedZyteAPI1Spider(scrapy.Spider):
                 
                 # Yield the data
                 output_dict_listing_page = {
-                    "listing_page_url_to_crawl": response.meta["listing_page_url_to_crawl"],
+                    "listing_page_url": response.meta["listing_page_url"],
                     "job_title_name": job_title_name,
                     "job_indeed_url": job_indeed_url,
                     "company_name": company_name,
@@ -141,8 +141,8 @@ class IndeedZyteAPI1Spider(scrapy.Spider):
             "remote": response.meta["remote"],
             "salary": response.meta["salary"],
             "crawled_page_rank": response.meta["crawled_page_rank"],
-            "job_page_url_to_crawl": response.meta["job_indeed_url"],
-            "listing_page_url_to_crawl": response.meta["listing_page_url_to_crawl"],
+            "job_page_url": response.meta["job_indeed_url"],
+            "listing_page_url": response.meta["listing_page_url"],
             "job_description": job_description,
             "crawled_timestamp": datetime.now()
         }
