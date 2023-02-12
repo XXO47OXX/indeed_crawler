@@ -78,7 +78,7 @@ def post_crawling_func(output_json_file, crawler_name):
     df["crawler_name"] = crawler_name
 
     # Upload the results to bigquery
-     # First, set the credentials
+    # First, set the credentials
     key_path_local = os.getcwd() + "/bq_credentials.json"
     credentials = service_account.Credentials.from_service_account_file(
         key_path_local, scopes=["https://www.googleapis.com/auth/cloud-platform"],
