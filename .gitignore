@@ -3,3 +3,5 @@
 *.ipynb
 test.py
 *.xlsx
+bq_credentials.json
+email_authentication.json
