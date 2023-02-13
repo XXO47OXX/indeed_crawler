@@ -6,3 +6,5 @@ test.py
 bq_credentials.json
 email_authentication.json
 output_indeed_zyte_api_1.json
+*.gsheet
+*.mp4
